@@ -1,0 +1,27 @@
+---
+image:
+  tag: v0.25.0
+
+probe:
+  enabled: true
+
+  defaults:
+    additionalMetricsRelabels: {}
+    additionalRelabeling: []
+    labels: {}
+    interval: 30s
+    scrapeTimeout: 30s
+    prober: {}
+  
+  modules:
+    http_2xx:
+      additionalMetricsRelabels: {}
+      additionalRelabeling: []
+      labels: {}
+      interval: 30s
+      scrapeTimeout: 30s
+      staticTargets:
+        - https://google.com
+        - https://www.wp.pl
+
+#releaseLabel: true

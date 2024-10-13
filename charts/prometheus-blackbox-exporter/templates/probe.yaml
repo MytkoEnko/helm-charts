@@ -1,0 +1,30 @@
+{{- if .Values.probe.enabled }}
+{{- range $module, $params := .Values.probe.modules }}
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: {{ template "prometheus-blackbox-exporter.fullname" $ }}-{{ kebabcase $module }}
+  namespace: {{ template "prometheus-blackbox-exporter.namespace" $ }}
+  labels:
+    {{- include "prometheus-blackbox-exporter.labels" $ | nindent 4 }}
+    {{- if or $.Values.probe.defaults.labels $params.labels }}
+    {{- toYaml ( $params.labels | default $.Values.probe.defaults.labels) | nindent 4 }}
+    {{- end }}
+    release: test-prometheus
+spec:
+  jobName: blackbox-exporter-{{ kebabcase $module }}
+  interval: 30s
+  scrapeTimeout: 10s
+  prober:
+    url: {{ $.Values.probe.defaults.prober.url | default (print ( include "prometheus-blackbox-exporter.fullname" $ ) "." ( include "prometheus-blackbox-exporter.namespace" $ ) ".svc:" $.Values.service.port) }}
+  targets:
+  {{- if $params.staticTargets }}
+    staticConfig:
+      static:
+        {{- range $params.staticTargets }}
+        - {{ . }}
+        {{- end }}
+  {{- end }}
+  module: {{ $module }}
+{{ end }}
+{{ end }}
